@@ -1,5 +1,7 @@
+//import axios from "axios";
 import Feed from "components/Feed";
 import Post from "components/Post";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const HomeWraapper = styled.div`
@@ -11,20 +13,51 @@ const HomeWraapper = styled.div`
   border: 2px solid lightgrey;
   box-sizing: border-box;
 `;
+function loadPosts(callback) {
+  const xhr = new XMLHttpRequest();
+  const method = "GET";
+  const url = "http://127.0.0.1:8000/api/posts/";
+  const responseType = "json";
+  xhr.responseType = responseType;
+  xhr.open(method, url);
+  xhr.onload = function () {
+    callback(xhr.response, xhr.status);
+  };
+  xhr.oneerror = function (e) {
+    console.log(e);
+    callback({ message: "the request was an error" }, 400);
+  };
+  xhr.send();
+}
 
 const HomeView = () => {
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    const mycallback = (response, status) => {
+      console.log(response, status);
+      if (status === 200) {
+        setPosts(response);
+      } else {
+        alert("there was an error");
+      }
+    };
+    loadPosts(mycallback);
+  }, []);
+
   return (
     <HomeWraapper>
       <div className="home">
         <Feed />
-        <Post
-          profilePic="https://media.istockphoto.com/vectors/woman-in-a-surgical-mask-vector-id1212979124?s=612x612"
-          message="Wear Mask, Stay Safe"
-          // timestamp="This is timestamp"
-          username="Diya Manandhar"
-          image="https://media.istockphoto.com/vectors/novel-coronavirus-people-in-white-medical-face-mask-concept-of-vector-id1202707966?k=6&m=1202707966&s=612x612&w=0&h=8GsjwoTtiANnD2WMlLUJNiIg65kO4nPVyQCPqcXUMvo="
-        />
-        <Post
+
+        {posts.map((post, index) => (
+          <Post
+            profilePic="https://previews.123rf.com/images/sokolfly/sokolfly2004/sokolfly200400066/145760719-vector-illustration-of-woman-in-medical-face-mask-flat-person-portrait-avatar-design-female-head-ico.jpg"
+            username="Suniti Sainju"
+            message={post.content}
+          />
+        ))}
+
+        {/* <Post
           profilePic="https://previews.123rf.com/images/sokolfly/sokolfly2004/sokolfly200400066/145760719-vector-illustration-of-woman-in-medical-face-mask-flat-person-portrait-avatar-design-female-head-ico.jpg"
           username="Suniti Sainju"
           message="Online class will be halted from May 7, 2021 until May 14, 2021 as per the admininstration."
@@ -33,7 +66,7 @@ const HomeView = () => {
           profilePic="https://cdn.nohat.cc/thumb/f/720/comrawpixel2310838.jpg"
           username="Jenny Tmg"
           image="https://image.freepik.com/free-vector/young-woman-with-face-mask-sick-coronavirus-covid-19_24877-62819.jpg"
-        />
+        />  */}
       </div>
     </HomeWraapper>
   );
